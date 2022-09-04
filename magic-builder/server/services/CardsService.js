@@ -6,6 +6,9 @@ import { dcService } from "./DeckCardsService.js";
 
 
 class CardsService {
+  async find(query = {}) {
+    return await dbContext.Cards.find(query)
+  }
   async create(body) {
     const existing = await dbContext.Cards.findOne({ scryId: body.scryId, creatorId: body.creatorId })
     if (existing) {

@@ -1,13 +1,16 @@
-$body-bg: #e5e5e5;
-$primary: #3ba5dc;
-$secondary: #8392ab;
-$success: #00f867;
-$info: #5d0149;
+$body-bg: #d3d1d0;
+$primary: #961f39;
+$secondary: #924e83;
+$success: #40c5be;
+$info: #922260;
 $warning: #fbcf33;
-$danger: #ea0606;
-$light: #e9ecef;
-$dark: #111927;
+$danger: #912929;
+$light: #e5e5e5;
+$dark: #271119;
 $grey: #cbcbcb;
+
+$modal-transition: transform .15s cubic-bezier(.43, -1.05, .68, 1.78);
+$modal-fade-transform: rotate(90deg);
 
 $font-sans-serif: Open Sans;
 $font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;

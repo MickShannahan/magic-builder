@@ -11,9 +11,18 @@ export class CardsController extends BaseController {
   constructor() {
     super('api/cards')
     this.router
+      .get('', this.find)
       .use(Auth0Provider.getAuthorizedUserInfo)
       .post('', this.create)
       .delete('/:id', this.remove)
+  }
+  async find(req, res, next) {
+    try {
+      const cards = await cardsService.find(req.query)
+      return res.send(cards)
+    } catch (error) {
+      next(error)
+    }
   }
 
   async create(req, res, next) {
@@ -25,6 +34,7 @@ export class CardsController extends BaseController {
       next(error)
     }
   }
+
 
   async remove(req, res, next) {
     try {
