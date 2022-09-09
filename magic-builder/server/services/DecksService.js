@@ -1,6 +1,5 @@
 import { dbContext } from "../db/DbContext.js";
 import { BadRequest, Forbidden } from "../utils/Errors.js";
-import { logger } from '../utils/Logger.js';
 import { cardsService } from "./CardsService.js";
 
 
@@ -50,17 +49,24 @@ class DecksService {
   }
 
   async cloneDeck(ogDeck, userId) {
+    // ogDeck needs to be the req.body with any relevant info you want to be duplicated across decks, like name format colors etc.
+    // you can reset any values that need to be erased or just in the create just don't used them
+    // ogDeck.rating = []
+    // ogDeck.views = 0
     // copy deck but swap out data to new users
     ogDeck.name += ' copy'
     ogDeck.creatorId = userId
     ogDeck.originalId = ogDeck.id
     const newDeck = await dbContext.Decks.create(ogDeck)
-    logger.log('creatied dec', newDeck)
 
+    // get all the cards in the deck
     const ogDeckCards = await dbContext.DeckCards.find({ deckId: ogDeck.id }).populate('card')
+    // convert them into just cards instead of deck cards
     const cardsInOg = ogDeckCards.map(dc => dc.card)
+    // get cards in your collection
     const yourCards = await cardsService.find({ creatorId: userId })
-    // get your cards and check which ones from the cloning deck need to be added to collection, then insert them
+
+    // seperate out which cards you have in your collection and which ones you need to add
     let cardsToAdd = []
     let cardsOwned = []
     cardsInOg.forEach(cd => {
@@ -78,16 +84,19 @@ class DecksService {
       delete card._id
       return card
     })
-    logger.log('adding cards', cardsToAdd)
     // insert cards into collection
     let newCards = await dbContext.Cards.insertMany(cardsToAdd)
+    // combine cards you already had and cards just inserted into collection
     let dcsToAdd = [...cardsOwned, ...newCards]
+    // convert them from cards to deckcards
     dcsToAdd = dcsToAdd.map(dc => {
       return { oracleId: dc.oracleId, scryId: dc.scryId, cardId: dc.id, deckId: newDeck.id, creatorId: userId }
     })
-    logger.log('new Dcs', dcsToAdd)
+    // insert deck cards
     await dbContext.DeckCards.insertMany(dcsToAdd)
+    // populate deck info
     await newDeck.populate('cards uniqueCards')
+    // return deck created so the user can be pushed to the deck page they just cloned
     return newDeck
   }
 }
