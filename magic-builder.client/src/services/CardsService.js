@@ -15,6 +15,12 @@ class CardsService {
     AppState.cards = res.data.data.map(c => new Card(c))
   }
 
+  async searchScryArt(term) {
+    const res = await scryfall.get('cards/search?q=/' + term + '/+unique:art')
+    logger.log('art search', res.data)
+    AppState.cardArts = res.data.data.map(c => c.image_uris.art_crop)
+  }
+
   async getCards(query = '') {
     const res = await api.get('api/cards' + query)
     logger.log('got profile cards', res.data)
@@ -39,8 +45,6 @@ class CardsService {
   }
 
   async removeFromDeck(dcId) {
-    const res = await api.delete('api/deckcards/' + dcId)
-    logger.log(res.data)
     let existing = AppState.activeDeck.cards?.findIndex(dc => dc.id == dcId)
     if (existing != -1) {
       let card = AppState.activeDeck.cards[existing]
@@ -49,6 +53,8 @@ class CardsService {
         AppState.activeDeck.cards.splice(existing, 1)
       }
     }
+    const res = await api.delete('api/deckcards/' + dcId)
+    logger.log(res.data)
   }
 
 }

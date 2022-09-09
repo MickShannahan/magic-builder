@@ -7,7 +7,8 @@ export const DeckSchema = new Schema({
   name: { type: String, required: true },
   img: { type: String },
   colors: [{ type: String }],
-  format: { type: String }
+  format: { type: String },
+  originalId: { type: ObjectId, ref: 'Deck' }
 }, { timestamps: true, toJSON: { virtuals: true } })
 
 DeckSchema.virtual('uniqueCards', {

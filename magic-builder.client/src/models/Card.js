@@ -7,7 +7,7 @@ export class Card {
     this.scryId = data.object ? data.id : data.scryId
     this.oracleId = data.oracleId || data.oracle_id
 
-    this.owned = data.owned != undefined ? data.owned : true
+    this.wished = data.owned || 0
     this.count = data.count || 1
 
     this.name = data.name

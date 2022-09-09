@@ -13,6 +13,7 @@ export class DecksController extends BaseController {
       .get('/:id', this.findById)
       .get('/:id/cards', this.findDeckCards)
       .use(Auth0Provider.getAuthorizedUserInfo)
+      .post('/:id/clone', this.cloneDeck)
       .post('', this.create)
       .put('/:id', this.update)
       .delete('/:id', this.remove)
@@ -50,6 +51,16 @@ export class DecksController extends BaseController {
       req.body.creatorId = req.userInfo.id
       const deck = await decksService.create(req.body)
       return res.send(deck)
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async cloneDeck(req, res, next) {
+    try {
+      req.body.id = req.params.id
+      const newDeck = await decksService.cloneDeck(req.body, req.userInfo.id)
+      return res.send(newDeck)
     } catch (error) {
       next(error)
     }

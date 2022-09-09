@@ -6,7 +6,7 @@ export const CardSchema = new Schema({
   scryId: { type: String, required: true },
   oracleId: { type: String, required: true },
 
-  owned: { type: Boolean, required: true, default: true },
+  wished: { type: Number, required: true, default: 0 },
   count: { type: Number, required: true, default: 1 },
 
   name: { type: String, required: true },

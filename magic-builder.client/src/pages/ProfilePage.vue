@@ -9,7 +9,7 @@
     <section v-if="isOwner" class="mb-2">
       <CreateADeck />
     </section>
-    <section class="row no-wrap ps-5 mb-2">
+    <section class="infinite-row py-3 mb-2">
       <div v-for="d in decks" :key="d.id" class="col-3">
         <Deck :deck="d" />
       </div>
@@ -61,5 +61,11 @@ export default {
 <style scoped>
 img {
   max-width: 100px;
+}
+
+.infinite-row {
+  display: flex;
+  overflow-x: scroll;
+  max-width: 100%;
 }
 </style>

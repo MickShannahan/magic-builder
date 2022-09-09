@@ -1,7 +1,7 @@
 <template>
   <div class="dc-wrapper" @click="removeFromDeck">
     <div class="card-under bg-danger text-end"><i class="mdi mdi-delete-outline"></i></div>
-    <div class="deck-card rounded mt-1" :style="`background-image: url(${bg})`">
+    <div :class="{'subtract-card':subtracting}" class="deck-card rounded mt-1" :style="`background-image: url(${bg})`">
       <div class="filter py-2 px-1">
         <div class="d-flex justify-content-between">
           <div>{{deckCard.card.name}}</div>
@@ -14,17 +14,23 @@
 
 
 <script>
-import { computed } from '@vue/reactivity';
+import { computed, ref } from '@vue/reactivity';
 import { cardsService } from '../services/CardsService.js';
 import Pop from '../utils/Pop.js';
 
 export default {
   props: {deckCard: {type: Object}},
   setup(props){
+    const subtracting = ref(false)
   return {
+    subtracting,
     bg: computed(()=> `url(${props.deckCard?.card.imgArt})`),
     async removeFromDeck(){
       try {
+        if(props.deckCard.count > 1){
+          subtracting.value = true
+          setTimeout(()=> subtracting.value = false, 200)
+        }
         await cardsService.removeFromDeck(props.deckCard.id)
       } catch (error) {
         Pop.error(error)
@@ -90,5 +96,23 @@ export default {
   border-radius: 8px;
   transition: .1s .05s linear all;
 
+
+}
+
+.subtract-card {
+  animation: subtract-card .2s linear;
+  opacity: 1;
+}
+
+@keyframes subtract-card {
+  0% {
+    transform: translateX(0px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
 }
 </style>

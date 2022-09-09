@@ -1056,5 +1056,6 @@ export const AppState = reactive({
     }
   ]).map(c => new Card(c)),
   decks: [],
-  activeDeck: {}
+  activeDeck: {},
+  cardArts: [],
 })

@@ -11,13 +11,15 @@ class DeckCardsService {
 
   async create(body) {
     const card = await cardsService.findById(body.cardId)
-    const existing = await dbContext.DeckCards.findOne({ creatorId: body.creatorId, oracleId: card.oracleId }).populate('card')
+    const existing = await dbContext.DeckCards.findOne({ creatorId: body.creatorId, oracleId: card.oracleId, deckId: body.deckId })
     if (existing) {
       existing.count++
       if (existing.count > card.count) {
-        throw new BadRequest(`not enough ${card.name} in collection for this deck. ${existing.count - 1} used and ${card.count} are in your collection`)
+        // card.wished++
+        // card.save()
       }
       await existing.save()
+      await existing.populate('card')
       return existing
     }
     const dc = await dbContext.DeckCards.create({ ...body, scryId: card.scryId, oracleId: card.oracleId })

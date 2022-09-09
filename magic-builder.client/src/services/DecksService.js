@@ -22,6 +22,7 @@ class DecksService {
     const res = await api.post('api/decks', body)
     logger.log('created deck', res.data)
     AppState.decks.push(res.data)
+    return res.data.id
   }
 }
 

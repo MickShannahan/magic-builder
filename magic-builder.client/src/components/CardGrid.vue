@@ -1,21 +1,27 @@
 <template>
   <section class="grid mt-2 pt-3">
-    <div v-for="(c,i) in cards" :key="c.id + c.scryId" class="m-card" :style="`animation-delay: ${intDelay * i}ms`">
-      <CardModal :card="c" />
+    <div v-for="(c,i) in colCards" :key="c.id + c.scryId" class="m-card" :style="`animation-delay: ${intDelay * i}ms`">
+      <CardModal :card="c" :options="options" />
     </div>
   </section>
 </template>
 
 
 <script>
-import { ref } from 'vue';
+import { ref, watchEffect } from 'vue';
+import { logger } from '../utils/Logger.js';
 
 
 export default {
-  props: { cards: { type: Array, required: true } },
+  props: { cards: { type: Array, required: true }, options: {type: Object, default: {}} },
   setup(props) {
     const colCards = ref([])
     const intDelay = ref(10)
+    watchEffect(()=>{
+      logger.log('cards watch triggered')
+      colCards.value = []
+      colCards.value = props.cards
+    })
     return {
       intDelay,
       colCards

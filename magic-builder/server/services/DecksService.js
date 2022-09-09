@@ -1,12 +1,16 @@
 import { dbContext } from "../db/DbContext.js";
 import { BadRequest, Forbidden } from "../utils/Errors.js";
-
+import { logger } from '../utils/Logger.js';
+import { cardsService } from "./CardsService.js";
 
 
 
 class DecksService {
   async find(query = {}) {
-    return await dbContext.Decks.find(query).populate('uniqueCards')
+    return await dbContext.Decks.find(query).populate('uniqueCards').populate({
+      path: 'cards',
+      populate: { path: 'card' }
+    })
   }
 
   async create(body) {
@@ -45,6 +49,47 @@ class DecksService {
     return `deleted ${deck.name}`
   }
 
+  async cloneDeck(ogDeck, userId) {
+    // copy deck but swap out data to new users
+    ogDeck.name += ' copy'
+    ogDeck.creatorId = userId
+    ogDeck.originalId = ogDeck.id
+    const newDeck = await dbContext.Decks.create(ogDeck)
+    logger.log('creatied dec', newDeck)
+
+    const ogDeckCards = await dbContext.DeckCards.find({ deckId: ogDeck.id }).populate('card')
+    const cardsInOg = ogDeckCards.map(dc => dc.card)
+    const yourCards = await cardsService.find({ creatorId: userId })
+    // get your cards and check which ones from the cloning deck need to be added to collection, then insert them
+    let cardsToAdd = []
+    let cardsOwned = []
+    cardsInOg.forEach(cd => {
+      if (yourCards.find(yc => yc.oracleId == cd.oracleId)) {
+        cardsOwned.push(cd)
+      } else {
+        cardsToAdd.push(cd)
+      }
+    })
+    // convert cards need to add to your cards
+    cardsToAdd = cardsToAdd.map(c => {
+      let card = c._doc
+      card.count = 0
+      card.creatorId = userId
+      delete card._id
+      return card
+    })
+    logger.log('adding cards', cardsToAdd)
+    // insert cards into collection
+    let newCards = await dbContext.Cards.insertMany(cardsToAdd)
+    let dcsToAdd = [...cardsOwned, ...newCards]
+    dcsToAdd = dcsToAdd.map(dc => {
+      return { oracleId: dc.oracleId, scryId: dc.scryId, cardId: dc.id, deckId: newDeck.id, creatorId: userId }
+    })
+    logger.log('new Dcs', dcsToAdd)
+    await dbContext.DeckCards.insertMany(dcsToAdd)
+    await newDeck.populate('cards uniqueCards')
+    return newDeck
+  }
 }
 
 export const decksService = new DecksService()

@@ -1,6 +1,8 @@
 <template>
   <div class="component">
     <div :id="'cc-' + card.scryId" class="card-container">
+      <div v-if="card.count" class="card-count">{{card.count}}</div>
+      <!-- modal -->
       <div class="card-modal">
         <!-- Initial -->
         <div class="from">
@@ -10,7 +12,7 @@
         </div>
         <!-- Initial -->
         <!-- Expanded -->
-        <div class="to" :style="`top: ${posY}vh; left: calc( calc(50vw - 420px) + ${posX}px)`">
+        <div v-show="showExpand" class="to" :style="`top: ${posY}vh; left: calc( calc(50vw - 420px) + ${posX}px)`">
           <div class="to-contents" :style="`transform-origin: ${expX}px ${expY}px`">
             <div class="d-flex card-content">
               <!-- mimic initial -->
@@ -68,7 +70,7 @@
 
 <script>
 import { computed } from '@vue/reactivity';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { AppState } from '../AppState.js';
 import { Card } from '../models/Card.js';
@@ -78,16 +80,19 @@ import Pop from '../utils/Pop.js';
 import CardLegals from './CardLegals.vue';
 
 export default {
-  props: { card: { type: Card, required: true } },
+  props: { card: { type: Card, required: true }, options: {type: Object, default: {}} },
   setup(props) {
     const tab = ref("details");
+    const showExpand = ref(false)
     const expand = ref(false);
     const posX = ref(0);
     const posY = ref(30);
     const expX = ref(0);
     const expY = ref(0);
     const route = useRoute()
+    onMounted(()=> setTimeout(()=>showExpand.value = true, 750))
     return {
+      showExpand,
       expand,
       tab,
       expX,
@@ -95,7 +100,10 @@ export default {
       posX,
       posY,
       account: computed(()=> AppState.account),
-      allUsed: computed(() => AppState.activeDeck.cards?.find(dc => dc.cardId == props.card.id)?.count == props.card.count),
+      allUsed: computed(() => {
+        if(props.options.trackUsed)
+        return AppState.activeDeck.cards?.find(dc => dc.cardId == props.card.id)?.count == props.card.count
+      }),
       changeTab(select) {
         tab.value = select;
       },
@@ -143,6 +151,7 @@ export default {
 $b-radius: 7px;
 
 .card-container {
+  position: relative;
   align-items: center;
   display: flex;
   justify-content: center;
@@ -166,6 +175,16 @@ $b-radius: 7px;
 .card-content {
   box-shadow: 0px 4px 15px rgba(13, 1, 15, 0.514);
   overflow: hidden;
+}
+
+.card-count {
+  position: absolute;
+  bottom: .3em;
+  left: .25em;
+  min-width: 1.5em;
+  z-index: 1;
+  text-align: center;
+  border-radius: 45em;
 }
 
 .card-img {

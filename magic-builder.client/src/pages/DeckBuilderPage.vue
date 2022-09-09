@@ -8,10 +8,10 @@
           <button class="btn btn-outline-dark" @click="display = 'deck'">In Deck</button>
         </div>
         <div v-if="display == 'collection'" class="col-12">
-          <CardGrid :cards="cards" />
+          <CardGrid :cards="cards" :options="{trackUsed: true}" />
         </div>
         <div v-else-if="display == 'deck'" class="col-12">
-          <CardGrid :cards="deckCards.map(dc => new Card(dc.card))" />
+          <CardGrid :cards="deckCards.map(dc => new Card(dc.card))" :options="{trackUsed: true}" />
         </div>
       </div>
     </div>

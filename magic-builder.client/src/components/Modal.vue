@@ -3,12 +3,12 @@
   <div class="modal fade" tabindex="-1" data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
-      <div class="modal-content p-3">
+      <div class="modal-content container-fluid">
         <slot name="header">
           <!-- Header -->
           <!-- <div class="modal-header"></div> -->
         </slot>
-        <div class="modal-body">
+        <div class="modal-body container-fluid p-0 rounded-bottom">
           <slot name="body">
             <!-- Body -->
           </slot>
